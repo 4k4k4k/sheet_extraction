@@ -572,48 +572,16 @@
 
   <script>
     // Configuration
-    const LEADS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-ufv9KwyIZBbRaNErlULTxw9oGnEiIPl_ngAZbO1qrkI8NqsmYpURAZNvq3cZdyV6/exec';
+    const LEADS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFcXNyX3I900hr3fP0nLPK4ua0LAHgStx1dYkqPgXhaMmnt2u4Zv4Ryh9WKFnk/exec';
     
     /* 
-    GOOGLE APPS SCRIPT SETUP:
-    Your Google Apps Script should have this code:
-    
-    function doPost(e) {
-      const sheet = SpreadsheetApp.openById('YOUR_SHEET_ID').getActiveSheet();
-      const data = JSON.parse(e.postData.contents);
-      
-      // Add headers if this is the first row
-      if (sheet.getLastRow() === 0) {
-        sheet.getRange(1, 1, 1, 15).setValues([[
-          'Timestamp', 'Name', 'Email', 'Phone', 'Credit Score', 
-          'Loan Amount (Lakhs)', 'Current ROI', 'Tenure (Years)', 
-          'Khata Type', 'Bank Category', 'Best Bank', 
-          'Current EMI', 'Best EMI', 'Monthly Savings', 'Total Savings'
-        ]]);
-      }
-      
-      // Append the data
-      sheet.appendRow([
-        data.timestamp,
-        data.name,
-        data.email,
-        data.phone,
-        data.creditScore,
-        data.loanAmount,
-        data.currentROI,
-        data.tenure,
-        data.khataType,
-        data.bankCategory,
-        data.bestBank,
-        data.currentEMI,
-        data.bestEMI,
-        data.monthlySavings,
-        data.totalSavings
-      ]);
-      
-      return ContentService.createTextOutput(JSON.stringify({success: true}))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
+    SIMPLIFIED GOOGLE APPS SCRIPT SETUP:
+    1. Create a new Google Sheet
+    2. Go to Extensions > Apps Script
+    3. Paste the script provided
+    4. Replace YOUR_NEW_SHEET_ID with your sheet ID
+    5. Deploy as Web App (Execute as: Me, Access: Anyone)
+    6. Update LEADS_SCRIPT_URL above with your deployment URL
     */
     
     // Embedded bank data
@@ -842,43 +810,34 @@
       document.getElementById('loader').style.display = 'block';
       document.getElementById('callbackForm').style.display = 'none';
 
-      // Prepare data for Google Sheets
+      // Prepare simplified data for Google Sheets
       const formData = {
-        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
         name: name,
         email: email,
         phone: phone,
-        creditScore: selectedCreditScore,
-        loanAmount: document.getElementById('loanAmount').value,
-        currentROI: document.getElementById('currentROI').value,
-        tenure: document.getElementById('tenure').value,
-        khataType: document.querySelector('.khata-option.selected') ? document.querySelector('.khata-option.selected').textContent : '',
-        bankCategory: document.querySelector('.category-option.selected h4') ? document.querySelector('.category-option.selected h4').textContent : '',
-        bestBank: document.getElementById('bestBank').textContent,
-        currentEMI: document.getElementById('currentEMI').textContent,
-        bestEMI: document.getElementById('bestEMI').textContent,
-        monthlySavings: document.getElementById('monthlySavings').textContent,
-        totalSavings: document.getElementById('totalSavings').textContent
+        creditScore: selectedCreditScore || '',
+        loanAmount: document.getElementById('loanAmount').value || '',
+        currentROI: document.getElementById('currentROI').value || ''
       };
 
-      console.log('Submitting form data:', formData);
+      console.log('Submitting lead data:', formData);
 
       // Submit to Google Apps Script
       fetch(LEADS_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors', // Important for Google Apps Script
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData)
       })
       .then(() => {
-        console.log('Form submitted successfully');
+        console.log('Lead submitted successfully');
         showThankYou();
       })
       .catch(error => {
-        console.error('Error submitting form:', error);
-        // Show thank you anyway - the data might have been submitted
+        console.error('Error submitting lead:', error);
+        // Show thank you anyway
         showThankYou();
       });
     }
@@ -950,10 +909,12 @@
     // Add test function for debugging
     function testLeadSubmission() {
       const testData = {
-        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
         name: 'Test User',
         email: 'test@example.com',
-        phone: '9876543210'
+        phone: '9876543210',
+        creditScore: '750',
+        loanAmount: '50',
+        currentROI: '8.5'
       };
       
       console.log('Testing lead submission with:', testData);
